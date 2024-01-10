@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Crowdfunding Gallery</title>
+    <style>
+        /* Styling for the crowdfunding gallery */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2ecc71;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-around;
+            align-items: stretch;
+            margin-top: 20px;
+        }
+
+        .project {
+            border: 1px solid #ccc;
+            padding: 20px;
+            width: 30%;
+            text-align: center;
+            background-color: #fff;
+            transition: transform 0.3s ease-in-out;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .project:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .project img {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 10px;
+        }
+
+        .wallet-info {
+            background-color: #2ecc71;
+            color: white;
+            padding: 10px;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .wallet-info p {
+            margin: 0;
+        }
+
+        h2 {
+            color: #2ecc71;
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: #555;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .eth-balance {
+            background-color: #2ecc71;
+            color: white;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease-in-out;
+        }
+
+        .eth-balance:hover {
+            background-color: #27ae60;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>RezyFund, Funding School Projects with PET and Allo Protocol</h1>
+    <div class="container">
+        <div class="project">
+            <div class="wallet-info">
+                <p>Wallet Address: <span id="walletAddress1">0x29Ce6b27C4d6Cd27EBb13836DD60a45f84416f94</span></p>
+                <p>Balance: $<span id="balance1">XXXX</span></p>
+            </div>
+            <img src="project1.jpg" alt="Project 1">
+            <h2>Buy a new microscope</h2>
+            <p>We are looking for funds for replacing a microscope in the chemistry lab</p>
+            <p>Goal 10 PET</p>
+
+            <button class="eth-balance">PET Balance: Loading...</button> <!-- Display ETH balance here -->
+        </div>
+        <div class="project">
+            <div class="wallet-info">
+                <p>Wallet Address: <span id="walletAddress2">0x3cDB3d9e1B74692Bb1E3bb5fc81938151cA64b02</span></p>
+                <p>Balance: $<span id="balance2">XXXX</span></p>
+            </div>
+            <img src="project2.jpg" alt="Project 2">
+            <h2>Finance a Science Fair</h2>
+            <p>We are looking for funds in order to organize a Science Fair at the School</p>
+            <p>Goal: 10 PET</p>
+            <button class="eth-balance">ETH Balance: Loading...</button> <!-- Display ETH balance here -->
+        </div>
+        <div class="project">
+            <div class="wallet-info">
+                <p>Wallet Address: <span id="walletAddress3">0x3cDB3d9e1B74692Bb1E3bb5fc81938151cA64b02</span></p>
+                <p>Balance: $<span id="balance3">XXXX</span></p>
+            </div>
+            <img src="project3.jpg" alt="Project 3">
+            <h2>Build a DIY made steam turbine</h2>
+            <p>We are looking for funds in order to build the pieces for a steam turbine</p>
+            <p>Goal: 10 PET</p>
+            <button class="eth-balance">ETH Balance: Loading...</button> <!-- Display ETH balance here -->
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        const walletAddresses = [
+            '0x29Ce6b27C4d6Cd27EBb13836DD60a45f84416f94', // Replace with your wallet addresses
+            '0xbFDd2Cce5856Ea15646B23d08Ace466e76AFd96E',
+            '0x3cDB3d9e1B74692Bb1E3bb5fc81938151cA64b02',
+        ];
+
+        const buttons = document.querySelectorAll('.eth-balance');
+
+        walletAddresses.forEach((walletAddress, index) => {
+            const data = JSON.stringify({
+                "method": "alchemy_getTokenBalances",
+                "params": [
+                    walletAddress,
+                    "erc20"
+                ],
+                "id": index + 1,
+                "jsonrpc": "2.0"
+            });
+
+            const config = {
+                method: 'post',
+                maxBodyLength: Infinity,
+                url: 'https://arb-sepolia.g.alchemy.com/v2/Ws39Z-twSPfg7p8ubLkjKXPARyfsUGBl',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Cookie': '_cfuvid=jfarqpXUKTjWoJx.HoV.1.g6D38FBZk44tHAPuNvsFo-1704832780860-0-604800000'
+                },
+                data: data
+            };
+
+            axios.request(config)
+                .then((response) => {
+                    const result = response.data.result;
+                    const filteredToken = result.tokenBalances.find(token => token.contractAddress === '0x260fdba5890ac2883adcb990c1f7476d2444368b');
+
+                    if (filteredToken) {
+                        const tokenBalanceWei = BigInt(filteredToken.tokenBalance); // Convert hex to BigInt
+                        const ethBalance = tokenBalanceWei / BigInt('1000000000000000000'); // Convert wei to ETH
+
+                        // Update the button text with the ETH balance
+                        buttons[index].textContent = `PET Balance: ${ethBalance.toString()}`;
+                    } else {
+                        console.log(`Token balance not found for the specified contract address (${walletAddress}).`);
+                        buttons[index].textContent = `ETH Balance: N/A`;
+                    }
+                })
+                .catch((error) => {
+                    console.log(error);
+                    buttons[index].textContent = `ETH Balance: Error`;
+                });
+        });
+    </script>
+</body>
+
+</html>
